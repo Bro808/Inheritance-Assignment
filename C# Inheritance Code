@@ -1,0 +1,304 @@
+using System;
+
+namespace Inheritance
+{
+    class Program
+    {
+        static void Main()
+        {
+            // Create Book Instances
+            Book book1 = new("The Great Adventure", "1234567890123", "John Smith", "Great Books Publisher");
+            Book book2 = new("Learn C# in 30 Days", "9876543210123", "Jane Doe", "Tech Books Publishing");
+
+            // Set Prices for Books
+            book1.SetPrice(19.99m, "USD");
+            book2.SetPrice(29.99m, "USD");
+
+            // Create Journal Instances
+            Journal journal1 = new("Tech Innovations Journal", "Tech Publishers", "Quarterly", 10, "Vol 15", "Technology Research");
+            Journal journal2 = new("Health Studies Journal", "Health Publishers", "Bi-Monthly", 5, "Vol 8", "Medical Research");
+
+            // Create Magazine Instances
+            Magazine magazine1 = new("Fashion Weekly", "Fashion House", "Weekly", 124, "Fashion");
+            Magazine magazine2 = new("Tech Trends", "Tech World", "Monthly", 72, "Technology");
+
+            // Create Newspaper Instances
+            Newspaper newspaper1 = new("Daily Times", "Global Press", "Daily", 7584, DateTime.Now, "International");
+            Newspaper newspaper2 = new("Local News", "Local Press", "Daily", 1223, DateTime.Now, "Local");
+
+            // Publish Publications
+            book1.Publish(DateTime.Now);
+            book2.Publish(DateTime.Now.AddMonths(-2));
+            journal1.Publish(DateTime.Now.AddMonths(-1));
+            journal2.Publish(DateTime.Now.AddMonths(-3));
+            magazine1.Publish(DateTime.Now.AddMonths(-1));
+            magazine2.Publish(DateTime.Now.AddMonths(-3));
+            newspaper1.Publish(DateTime.Now);
+            newspaper2.Publish(DateTime.Now.AddDays(-1));
+
+            // Set Copyrights for Publications
+            book1.Copyright("John Smith", 2025);
+            book2.Copyright("Jane Doe", 2023);
+            journal1.Copyright("Tech Publishers", 2024);
+            journal2.Copyright("Health Publishers", 2022);
+            magazine1.Copyright("Fashion House", 2023);
+            magazine2.Copyright("Tech World", 2022);
+            newspaper1.Copyright("Global Press", 2025);
+            newspaper2.Copyright("Local Press", 2024);
+
+            // Output all Publications
+            Console.WriteLine("Books:");
+            Console.WriteLine(book1.ToString());
+            Console.WriteLine(book2.ToString());
+            Console.WriteLine();
+
+            Console.WriteLine("Journals:");
+            Console.WriteLine(journal1.ToString());
+            Console.WriteLine(journal2.ToString());
+            Console.WriteLine();
+
+            Console.WriteLine("Magazines:");
+            Console.WriteLine(magazine1.ToString());
+            Console.WriteLine(magazine2.ToString());
+            Console.WriteLine();
+
+            Console.WriteLine("Newspapers:");
+            Console.WriteLine(newspaper1.ToString());
+            Console.WriteLine(newspaper2.ToString());
+
+            // Output publication dates
+            Console.WriteLine("\nPublication Dates:");
+            Console.WriteLine($"Book1 Published on: {book1.GetPublicationDate()}");
+            Console.WriteLine($"Book2 Published on: {book2.GetPublicationDate()}");
+            Console.WriteLine($"Journal1 Published on: {journal1.GetPublicationDate()}");
+            Console.WriteLine($"Journal2 Published on: {journal2.GetPublicationDate()}");
+            Console.WriteLine($"Magazine1 Published on: {magazine1.GetPublicationDate()}");
+            Console.WriteLine($"Magazine2 Published on: {magazine2.GetPublicationDate()}");
+            Console.WriteLine($"Newspaper1 Published on: {newspaper1.GetPublicationDate()}");
+            Console.WriteLine($"Newspaper2 Published on: {newspaper2.GetPublicationDate()}");
+
+            Console.WriteLine("\nCopyright Information:");
+            Console.WriteLine($"Book1 Copyright: {book1.CopyrightName} ({book1.CopyrightDate})");
+            Console.WriteLine($"Book2 Copyright: {book2.CopyrightName} ({book2.CopyrightDate})");
+            Console.WriteLine($"Journal1 Copyright: {journal1.CopyrightName} ({journal1.CopyrightDate})");
+            Console.WriteLine($"Journal2 Copyright: {journal2.CopyrightName} ({journal2.CopyrightDate})");
+            Console.WriteLine($"Magazine1 Copyright: {magazine1.CopyrightName} ({magazine1.CopyrightDate})");
+            Console.WriteLine($"Magazine2 Copyright: {magazine2.CopyrightName} ({magazine2.CopyrightDate})");
+            Console.WriteLine($"Newspaper1 Copyright: {newspaper1.CopyrightName} ({newspaper1.CopyrightDate})");
+            Console.WriteLine($"Newspaper2 Copyright: {newspaper2.CopyrightName} ({newspaper2.CopyrightDate})");
+        }
+    }
+    public enum PublicationType { Misc, Book, Magazine, Article };
+
+    public abstract class Publication
+    {
+        private bool _published = false;
+        private DateTime _datePublished;
+        private int _totalPages;
+
+        public Publication(string title, string publisher, PublicationType type)
+        {
+            if (string.IsNullOrWhiteSpace(publisher))
+                throw new ArgumentException("The publisher is required.");
+            Publisher = publisher;
+
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("The title is required.");
+            Title = title;
+
+            Type = type;
+        }
+
+        public string Publisher { get; }
+
+        public string Title { get; }
+
+        public PublicationType Type { get; }
+
+        public string? CopyrightName { get; private set; }
+
+        public int CopyrightDate { get; private set; }
+
+        public int Pages
+        {
+            get { return _totalPages; }
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(value), "The number of pages cannot be zero or negative.");
+                _totalPages = value;
+            }
+        }
+
+        public string GetPublicationDate()
+        {
+            if (!_published)
+                return "NYP";
+            else
+                return _datePublished.ToString("d");
+        }
+
+        public void Publish(DateTime datePublished)
+        {
+            _published = true;
+            _datePublished = datePublished;
+        }
+
+        public void Copyright(string copyrightName, int copyrightDate)
+        {
+            if (string.IsNullOrWhiteSpace(copyrightName))
+                throw new ArgumentException("The name of the copyright holder is required.");
+            CopyrightName = copyrightName;
+
+            int currentYear = DateTime.Now.Year;
+            if (copyrightDate < currentYear - 10 || copyrightDate > currentYear + 2)
+                throw new ArgumentOutOfRangeException($"The copyright year must be between {currentYear - 10} and {currentYear + 1}");
+            CopyrightDate = copyrightDate;
+        }
+
+        public override string ToString() => Title;
+    }
+    public sealed class Book : Publication
+    {
+        public Book(string title, string author, string publisher) :
+               this(title, string.Empty, author, publisher)
+        { }
+
+        public Book(string title, string isbn, string author, string publisher) : base(title, publisher, PublicationType.Book)
+        {
+            // isbn argument must be a 10- or 13-character numeric string without "-" characters.
+            // We could also determine whether the ISBN is valid by comparing its checksum digit
+            // with a computed checksum.
+            //
+            if (!string.IsNullOrEmpty(isbn))
+            {
+                // Determine if ISBN length is correct.
+                if (!(isbn.Length == 10 | isbn.Length == 13))
+                    throw new ArgumentException("The ISBN must be a 10- or 13-character numeric string.");
+                if (!ulong.TryParse(isbn, out _))
+                    throw new ArgumentException("The ISBN can consist of numeric characters only.");
+            }
+            ISBN = isbn;
+
+            Author = author;
+        }
+
+        public string ISBN { get; }
+
+        public string Author { get; }
+
+        public decimal Price { get; private set; }
+
+        // A three-digit ISO currency symbol.
+        public string? Currency { get; private set; }
+
+        // Returns the old price, and sets a new price.
+        public decimal SetPrice(decimal price, string currency)
+        {
+            if (price < 0)
+                throw new ArgumentOutOfRangeException(nameof(price), "The price cannot be negative.");
+            decimal oldValue = Price;
+            Price = price;
+
+            if (currency.Length != 3)
+                throw new ArgumentException("The ISO currency symbol is a 3-character string.");
+            Currency = currency;
+
+            return oldValue;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not Book book)
+                return false;
+            else
+                return ISBN == book.ISBN;
+        }
+
+        public override int GetHashCode() => ISBN.GetHashCode();
+
+        public override string ToString() => $"{(string.IsNullOrEmpty(Author) ? "" : Author + ", ")}{Title}";
+    }
+
+    public class Periodical : Publication
+    {
+        public Periodical(string title, string publisher, PublicationType type, string frequency, int issueNumber) : base(title, publisher, type)
+        {
+            Frequency = frequency ?? throw new ArgumentNullException(nameof(frequency), "Frequency can't be null"); //?? returns frequency if it isn't null
+
+            IssueNumber = issueNumber;
+
+            if (string.IsNullOrWhiteSpace(frequency))
+                throw new ArgumentException("Frequency is required");
+
+        }
+        //frequency of the periodical
+        public string Frequency { get; }
+        //issue number of periodical
+        public int IssueNumber { get; }
+
+        public override string ToString()
+        {
+            return $"{Title} - Issue #{IssueNumber} ({Frequency})";
+        }
+
+    }
+    public class Journal : Periodical
+    {
+        public Journal(string title, string publisher, string frequency, int issueNumber, string volume, string focusArea)
+            : base(title, publisher, PublicationType.Misc, frequency, issueNumber)  // Assuming Journals could fall under Misc type
+        {
+            Volume = volume ?? throw new ArgumentNullException(nameof(volume), "Volume can't be null");
+            FocusArea = focusArea ?? throw new ArgumentNullException(nameof(focusArea), "Focus area can't be null");
+        }
+
+        // Volume number of the journal
+        public string Volume { get; }
+
+        // The academic or research focus of the journal
+        public string FocusArea { get; }
+
+        public override string ToString()
+        {
+            return $"{Title} - Volume {Volume} - Issue #{IssueNumber} ({Frequency}) - Focus: {FocusArea}";
+        }
+    }
+
+    public class Magazine : Periodical
+    {
+        public Magazine(string title, string publisher, string frequency, int issueNumber, string genre)
+            : base(title, publisher, PublicationType.Magazine, frequency, issueNumber)
+        {
+            Genre = genre ?? throw new ArgumentNullException(nameof(genre), "Genre can't be null");
+        }
+
+        // Genre or category of the magazine (e.g., Fashion, Technology, etc.)
+        public string Genre { get; }
+
+        public override string ToString()
+        {
+            return $"{Title} - Issue #{IssueNumber} ({Frequency}) - Genre: {Genre}";
+        }
+    }
+
+    public class Newspaper : Periodical
+    {
+        public Newspaper(string title, string publisher, string frequency, int issueNumber, DateTime issueDate, string region)
+            : base(title, publisher, PublicationType.Misc, frequency, issueNumber)  // Assuming Newspapers are under Misc for simplicity
+        {
+            IssueDate = issueDate;
+            Region = region ?? throw new ArgumentNullException(nameof(region), "Region can't be null");
+        }
+
+        // Date the newspaper was issued
+        public DateTime IssueDate { get; }
+
+        // The region or location the newspaper is associated with (e.g., local, national, international)
+        public string Region { get; }
+
+        public override string ToString()
+        {
+            return $"{Title} - Issue #{IssueNumber} ({Frequency}) - Date: {IssueDate.ToShortDateString()} - Region: {Region}";
+        }
+    }
+}
